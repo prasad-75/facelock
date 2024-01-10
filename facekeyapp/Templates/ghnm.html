@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Capture</title>
+</head>
+<body>
+
+    <video id="videoElement" width="400" height="300" autoplay></video>
+    <button id="captureButton">Capture</button>
+    <canvas id="canvas" width="400" height="300" style="display: none;"></canvas>
+
+    <script>
+        const video = document.getElementById('videoElement');
+        const canvas = document.getElementById('canvas');
+        const captureButton = document.getElementById('captureButton');
+
+        // Get user media
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(error => {
+                console.error('Error accessing the camera:', error);
+            });
+
+        captureButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert canvas to base64 encoded image
+            const imageData = canvas.toDataURL('image/jpeg'); // You can change the format here
+            // console.log('imgg', imageData);
+
+            const formData = new FormData(); // Create FormData object
+    // Append form fields to FormData object
+            formData.append('image', imageData);
+            // Send image to backend
+            fetch('/upload_image/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body:formData // Send the base64 image data
+            })
+            .then(response => {
+                // Handle the response from the backend
+                console.log('Image uploaded successfully:', response);
+            })
+            .catch(error => {
+                console.error('Error uploading image:', error);
+            });
+            
+
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        });
+    </script>
+</body>
+</html>

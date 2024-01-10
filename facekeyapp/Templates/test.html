@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Authorisation</title>
+</head>
+<body>
+    <h1>Staunch Info Solutions</h1>
+    <h1>User Authentication</h1>
+    <p>{{ text }}</p>
+
+    
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="captureButton">Capture</button>
+    <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+    <img id="photo" src="" alt="Your captured photo will appear here."/>
+    
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const photo = document.getElementById('photo');
+        const captureButton = document.getElementById('captureButton');
+        
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch((err) => {
+                console.error('Error accessing the camera:', err);
+            });
+        
+        captureButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, 640, 480);
+            const dataURL = canvas.toDataURL('image/jpeg');
+            photo.setAttribute('src', dataURL);
+            
+            // Send the image data to the backend
+            sendDataToBackend(dataURL);
+        });
+        
+        function sendDataToBackend(imageData) {
+            // Replace 'your_backend_endpoint' with the actual URL to send the image data
+            fetch('/handle_image/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ image: imageData }),
+            })
+            .then((response) => {
+                console.log('Image sent to backend:', response);
+            })
+            .catch((error) => {
+                console.error('Error sending image:', error);
+            });
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="video-wrap">
+    <video id="video" playsinline autoplay></video>
+</div>
+
+<div class="controller">
+    <button id="snap">Capture</button>
+</div>
+
+<canvas id="'canvas" width="640" height="480"></canvas>
+
+
+<script>
+
+'use strict'
+
+const video =document.getElementById('video');
+const canvas=document.getElementById('canvas');
+const snap=document.getElementById('snap');
+const errorMsgElement=document.getElementById('spanErrorMsg');
+
+const constraints={
+    audio: False,
+    video:{
+        width:1280 ,height:720
+    }
+
+};
+
+async function init(){
+    try{
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        handleSuccess(stream);
+    }
+
+    catch(e){
+        errorMsgElement.innerHTML='navigator.getUserMedia.error:${e.toString()}';
+    }
+
+}
+
+function handleSuccess(stream){
+    window.stream=stream;
+    video.srcObject=stream;
+}
+
+init();
+ var context=canvas.getContext('2d');
+ snap.addEventListener("click",function(){
+    context.drawImage(video,0,0,640,480);
+ });
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Authorisation</title>
+</head>
+<body>
+    <h1>Staunch Info Solutions</h1>
+    <h1>User Authentication</h1>
+    <form id="imageForm" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" id="imageInput" accept="image/*">
+        <button type="button" id="submitImage">Upload Image</button>
+    </form>
+
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        $('#submitImage').on('click', function() {
+            var form_data = new FormData();
+            var image = $('#imageInput')[0].files[0];
+            form_data.append('image', image);
+            
+            $.ajax({
+                url: '/handle_image/', // Replace with your Django view URL
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                data: form_data,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    // Handle success response
+                    console.log(response);
+                },
+                error: function(error) {
+                    // Handle error response
+                    console.error(error);
+                }
+            });
+        });
+    });
+
+    // Function to get CSRF token from cookies
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    </script>
+
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Authorisation</title>
+</head>
+<body>
+    <h1>Staunch Info Solutions</h1>
+    <h1>User Authentication</h1>
+
+    <!--form id="imageForm" enctype="multipart/form-data"-->
+    <video id="videoElement" width="640" height="480" autoplay></video>
+    <button id="captureButton">Capture Image</button>
+
+    
+   
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        const video = document.getElementById('videoElement');
+        const captureButton = document.getElementById('captureButton');
+
+        captureButton.addEventListener('click', async function() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                video.play();
+                
+                // Capture image from video stream
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = canvas.toDataURL('image/png');
+
+                sendImageToBackend(imageData);
+            } catch (error) {
+                console.error('Error accessing the camera:', error);
+            }
+        });
+
+        function sendImageToBackend(imageData) {
+            $.ajax({
+                url: '/handle_image/', // Replace with your Django view URL
+                type: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                data: { image_data: imageData },
+                success: function(response) {
+                    // Handle success response
+                    console.log(response);
+                },
+                error: function(error) {
+                    // Handle error response
+                    console.error(error);
+                }
+            });
+        }
+
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<video id="videoElement" width="640" height="480" autoplay></video>
+<button id="captureButton">Capture Image</button>
+<canvas id="canvas" style="display: none;"></canvas>
+<canvas id="ctx" style="display: none;"></canvas>
+
+
+
+
+<script>
+    const video = document.getElementById('videoElement');
+    const captureButton = document.getElementById('captureButton');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    captureButton.addEventListener('click', function() {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/png');
+        console.log(imageData); // You can use this data as needed (send to backend, display, etc.)
+    });
+    
+    // Access the camera stream
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function(stream) {
+            video.srcObject = stream;
+            video.play();
+        })
+        .catch(function(error) {
+            console.error('Error accessing the camera:', error);
+        });
+    </script>
+
+    

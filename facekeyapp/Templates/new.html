@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Camera Image Capture</title>
+</head>
+<body>
+    <form id="imageForm" enctype="multipart/form-data">
+        <video id="videoElement" width="640" height="480" autoplay></video>
+        <button id="captureButton" type="button">Capture Image</button>
+    </form>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const video = document.getElementById('videoElement');
+            const captureButton = document.getElementById('captureButton');
+
+            captureButton.addEventListener('click', async function() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                    video.srcObject = stream;
+                    video.play();
+                    
+                    // Capture image from video stream
+                    const canvas = document.createElement('canvas');
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = canvas.toDataURL('image/png');
+
+                    // var img=imageData.src.split(',')[1];
+                    // var binarydata=atob(img)
+                    
+                    var file = imageData.files[0];
+
+                    var formData = new FormData();
+                    formData.append('file', file);
+
+
+                    fetch('/upload/', {
+                        method: 'POST',
+                        body: formData
+                    })
+
+                    HttpRespose('bibhu')
+
+                    } 
+                
+                catch (error) {
+                    console.error('Error accessing the camera:', error);
+                    alert('Error accessing the camera. Please allow camera access.');
+                }
+            });
+
+        //     function sendImageToBackend(imageData) {
+        //         $.ajax({
+        //             url: '/handle_image/',
+        //             type: 'POST',
+        //             headers: {
+        //                 'X-CSRFToken': getCookie('csrftoken')
+        //             },
+        //             data: { image_data: imageData },
+        //             success: function(response) {
+        //                 // Handle success response
+        //                 console.log(response);
+        //             },
+        //             error: function(error) {
+        //                 // Handle error response
+        //                 console.error('Error sending image data:', error);
+        //                 alert('Error sending image data.');
+        //             }
+        //         });
+        //     }
+
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        });
+    </script>
+</body>
+</html>
