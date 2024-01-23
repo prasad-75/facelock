@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Streaming1</title>
+</head>
+<body>
+    <!-- upload_video.html -->
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload Video</button>
+    </form>
+
+    <!-- video_list.html -->
+    <ul>
+        {% for video in videos %}
+            <li>
+                {{ video.title }}
+                <a href="{% url 'stream_video' video.id %}">Watch Video</a>
+            </li>
+        {% endfor %}
+    </ul>
+
+
+
+</body>
+</html>
+
+
+
+    <!-- <video id="streamingVideo" width="640" height="360" controls></video>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        navigator.mediaDevices.getUserMedia({ video: true })
+    .then((stream) => {
+        const videoElement = document.getElementById('streamingVideo');
+        videoElement.srcObject = stream;
+    })
+    .catch((error) => {
+        console.error('Error accessing camera:', error);
+    });
+    </script> -->

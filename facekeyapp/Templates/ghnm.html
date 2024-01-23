@@ -1,19 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Capture</title>
 </head>
 <body>
 
-    <video id="videoElement" width="400" height="300" autoplay></video>
+    <video id="videoElement" width="480" height="640" autoplay></video>
     <button id="captureButton">Capture</button>
-    <canvas id="canvas" width="400" height="300" style="display: none;"></canvas>
+    <canvas id="canvas" width="480" height="640" style="display: none;"></canvas>
 
+    <div id="text-content"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
         const video = document.getElementById('videoElement');
         const canvas = document.getElementById('canvas');
         const captureButton = document.getElementById('captureButton');
-
+        const text_content = document.getElementById('text-content');
         // Get user media
         navigator.mediaDevices.getUserMedia({ video: true })
             .then(stream => {
@@ -35,7 +40,7 @@
     // Append form fields to FormData object
             formData.append('image', imageData);
             // Send image to backend
-            fetch('/upload_image/', {
+            fetch('/bibhu/', {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': getCookie('csrftoken')
@@ -66,6 +71,14 @@
                 return cookieValue;
             }
         });
+
+        fetch('/POST/')
+        .then(response => response.json())
+        .then(data => {
+            // Update the HTML content with the received data
+            document.getElementById('text-content').innerText = data.text_content;
+        })
+        .catch(error => console.error('Error:', error));
     </script>
 </body>
 </html>

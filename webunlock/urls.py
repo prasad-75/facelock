@@ -15,17 +15,56 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
 from facekeyapp import views
+#from facekeyapp.views import index, upload_video,stream_video
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path("",include("facekeyapp.urls"))
-    #path('bibhu/', views.bibhu),
-    path('bibhu/', views.bibhu),
-    path('upload_image/', views.upload_image,name='upload_image'),
-    #path('bibhu/', views.m),
-    #path('bibhu/find_target_face', views.find_target_face),
+    path('', include('facekeyapp.urls')),
+    
+
+    #path('bibhu/', views.bibhu)
+    #path('bibhu/',views.main.as_view(),name='upload_image'),
+    #path('upload_image/', views.upload_image),
+    #path('', index, name='index'),
+    #path('upload_video/', upload_video, name='upload_video'),
+   
 
 
 ]
+
+
+#from channels.middleware.websocket import WebSocketMiddleware
+
+# from .consumers import YourConsumer
+
+# websocket_urlpatterns = [
+#     path('ws/some_path/', YourConsumer.as_asgi()),
+# ]
+
+
+# # routing.py
+# from channels.routing import ProtocolTypeRouter, URLRouter
+# from channels.auth import AuthMiddlewareStack
+
+
+# application = ProtocolTypeRouter(
+#     {
+#         "websocket": AuthMiddlewareStack(
+#             URLRouter(
+#                 [
+#                     # Add your WebSocket consumers here
+#                     # For example:
+#                     path("ws/some_path/", YourConsumer.as_asgi()),
+#                 ]
+#             )
+#         ),
+#         # Add other protocol routes if needed
+#     }
+# )
+
+
+
+

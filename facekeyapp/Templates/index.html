@@ -1,0 +1,82 @@
+<!-- video_stream_app/templates/video_stream_app/index.html -->
+<!DOCTYPE html>
+
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Streaming</title>
+</head>
+<body>
+    <h1>Video Streaming</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="startButton">Start Streaming</button>
+    <button id="stopButton">Stop Streaming</button>
+
+
+    <script>
+        // video_stream_app/static/video_stream_app/js/script.js
+document.addEventListener('DOMContentLoaded', () => {
+    console.log("sda")
+    const video = document.getElementById('video');
+    const startButton = document.getElementById('startButton');
+    const stopButton = document.getElementById('stopButton');
+    let stream;
+
+    startButton.addEventListener('click', async () => {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            video.srcObject = stream;
+        } catch (error) {
+            console.error('Error accessing camera:', error);
+        }
+    });
+
+    stopButton.addEventListener('click', () => {
+        if (stream) {
+            const tracks = stream.getTracks();
+            tracks.forEach(track => track.stop());
+            video.srcObject = null;
+        }
+    });
+});
+
+// Example using plain JavaScript
+const socket = new WebSocket('ws://127.0.0.1:8000/ws/facekeyapp/');
+   
+socket.onopen = function() {
+  console.log('WebSocket connection established.');
+  const message = {
+    'message': 'Hello, world!'
+  };
+  socket.send(JSON.stringify(message));
+};
+socket.onmessage = function(event) {
+  const message = JSON.parse(event.data);
+  console.log('Received message:', message);
+};
+
+
+
+// // Handle WebSocket events
+// socket.addEventListener('open', (event) => {
+//     console.log('WebSocket connection opened:', event);
+// });
+
+// socket.addEventListener('message', (event) => {
+//     console.log('Received message from server:', event.data);
+// });
+
+// socket.addEventListener('close', (event) => {
+//     console.log('WebSocket connection closed:', event);
+// });
+
+// // Send video data to the server
+// const videoData = { srcObject:video.srcObject };
+// socket.send(JSON.stringify(videoData));
+
+
+    </script>
+</body>
+</html>
