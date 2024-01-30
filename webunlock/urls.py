@@ -16,13 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-from facekeyapp import views
+
 #from facekeyapp.views import index, upload_video,stream_video
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('facekeyapp.urls')),
+    #path('', include('facekeyapp.routing')),
+
     
 
     #path('bibhu/', views.bibhu)

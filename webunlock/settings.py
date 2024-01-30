@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-import channels
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-sct5%pys!-+huo*afrmw&2wdai%sca*bevdq%#_q$*k(xs5a6g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'channels',
     'facekeyapp',
 ]
@@ -49,17 +50,20 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    #'channels.middleware.websocket.WebSocketMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    #'django.channels.middleware.websocket.WebSocketMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:5501",  # Replace with the origin of your frontend
+]
+
 ROOT_URLCONF = 'webunlock.urls'
 
 import os
-
-
 
 TEMPLATES = [
     {
@@ -78,18 +82,12 @@ TEMPLATES = [
     },
 ]
 
+ 
+
+# ASGI_APPLICATION = 'webunlockpj.asgi.application'
 
 
-ASGI_APPLICATION = 'webunlockpj.asgi.application'
-
-
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
-
-
+WSGI_APPLICATION = 'webunlock.wsgi.application'
 
 
 
@@ -140,8 +138,8 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-STATICFILES_DIRS=["C:\\Users\\bibhu\\OneDrive\\Documents\\GitHub\\facelock\\facekeyapp\\static",
-]
+#STATICFILES_DIRS=["C:\\Users\\bibhu\\OneDrive\\Documents\\GitHub\\facelock\\facekeyapp\\static",
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

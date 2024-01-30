@@ -8,7 +8,7 @@ https://docs.djangoproject.com/en/4.2/howto/deployment/wsgi/
 """
 
 import sys
-print(sys.path)
+
 
 
 import os

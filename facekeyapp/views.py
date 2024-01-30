@@ -4,12 +4,7 @@ from django.http import JsonResponse
 from django.views import View
 import base64
 from django.views.decorators.csrf import csrf_exempt
-import json
-import csv
-import datetime
 import math
-import time
-import os
 from deepface import DeepFace
 from cvzone.FaceDetectionModule import FaceDetector
 from PIL import Image
@@ -19,7 +14,8 @@ import threading
 import bbox
 
 
-
+import json
+import opencv
 import cv2
 import cvzone
 import face_recognition
@@ -35,20 +31,13 @@ import base64
 
 from django.http import JsonResponse
 import base64
+
 from PIL import Image
 from io import BytesIO
 
 
-
-# from django.shortcuts import render, redirect
-# from django.http import FileResponse
-# from .models import Video
-# from .form import VideoForm
-
-
-
 from django.shortcuts import render
-from django.http import JsonResponse
+
 
 
 
@@ -68,27 +57,48 @@ import mysql.connector
 
 
 class main(View):
+    list_people_encoding=[]
+
     def get(self,request):
-    #return HttpResponse("welcome")
-    #     results = cursor.fetchall()
-    #     for result in results:
-    #         imd=result[0]
-    #         img=Image.open(BytesIO(imd))
-    #         #img.show()
-    #         image_np = np.array(img)
-    #         face_locations = face_recognition.face_locations(image_np)
-    #         if face_locations:
-    #             face_encoding = face_recognition.face_encodings(image_np, known_face_locations=face_locations)[0]
-    #             #print(face_encoding)
-    #             list_people_encoding1.append((face_encoding))
-    #         print(list_people_encoding1)
-    #     #print(list_people_encoding)
-    # cursor.close
-    # db_connection.cl
-    # s=list_people_encodin
-    # self
-    #posted= self.post(re
-        return render (request,'index.html')#{'posted':list_people_encoding1}
+  
+        db_connection = mysql.connector.connect(
+            host="127.0.0.1",
+            user="root",
+            password="1234",
+            database="lk"
+        )
+
+        #list_people_encoding=[]
+        #list_people_encoding1=self.list_people_encoding.copy()
+        if db_connection.is_connected():
+            print("connected")
+            cursor = db_connection.cursor()
+
+
+            query = f"SELECT img_data FROM images where username ='bibhu'"
+            cursor.execute(query)
+
+            results = cursor.fetchall()
+            #print("output", results)
+            for result in results:
+                imd=result[0]
+                #print("image" , imd)s
+                #x=BytesIO(imd)
+                #print(x.getvalue())  # Print the content of BytesIO
+                img=Image.open(BytesIO(imd))
+                img.show()
+                image_n = np.array(img)
+                face_locations = face_recognition.face_locations(image_n)
+                if face_locations:
+                    face_encoding = face_recognition.face_encodings(image_n, known_face_locations=face_locations)[0]
+                    #print(face_encoding)
+                    self.list_people_encoding.append((face_encoding))
+                #print(list_people_encoding)
+            #print(list_people_encoding)
+            
+        cursor.close()
+        db_connection.close()
+        return render (request,'new.html')#{'posted':list_people_encoding1}
 
 
    
@@ -99,121 +109,131 @@ class main(View):
     def post(self,request):
 
         if request.method == 'POST':
-            received_data = request.POST.get("image") # Assuming the 'image' data is sent in the POST request
-            # print(received_data)
-            #try:
-            # Decode base64 data
-            format, imgstr = received_data.split(';base64,')
-            image_data = base64.b64decode(imgstr)
-            # Convert the base64 data to an image
-            image = Image.open(BytesIO(image_data))
-            #image.show()
-            image_np = np.array(image)
-            print(image_np)
             
-
-        db_connection = mysql.connector.connect(
-            host="127.0.0.1",
-            user="root",
-            password="1234",
-            database="lk"
-        )
-
-        list_people_encoding=[]
-        #list_people_encoding1=self.list_people_encoding.copy()
-        if db_connection.is_connected():
-            print("connected")
-            cursor = db_connection.cursor()
-
-
-            query = f"SELECT img_data FROM images"
-            cursor.execute(query)
-
-            results = cursor.fetchall()
-            for result in results:
-                imd=result[0]
-                img=Image.open(BytesIO(imd))
-                #img.show()
-                image_n = np.array(img)
-                face_locations = face_recognition.face_locations(image_n)
-                if face_locations:
-                    face_encoding = face_recognition.face_encodings(image_n, known_face_locations=face_locations)[0]
-                    #print(face_encoding)
-                    list_people_encoding.append((face_encoding))
-                #print(list_people_encoding)
-            #print(list_people_encoding)
-            
-        cursor.close()
-        db_connection.close()
+            data = json.loads(request.body.decode('utf-8'))
+            img_data = data.get('image')
+            if img_data:
+                
+                _, imgstr = img_data.split(';base64,')
+                img_bytes = base64.b64decode(imgstr)
+                image = Image.open(BytesIO(img_bytes))
+                #image.show()
+                image_np = np.array(image)
+                #print(image_np)
+                #image_n = cv2.imread(image_np)
+                image_array = np.frombuffer(img_bytes, dtype=np.uint8)
+                imag = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
 
 
-        # from cvzone.FaceDetectionModule import FaceDetector
-        # detector = FaceDetector()
-        # imd,bboxs = detector.findFaces(image_np,draw=True)
         
-        s=True
-        while s:
-            target_encoding = face_recognition.face_encodings(image_np)
-            #print(target_encoding)
-            confidence = 0.6
-            model = YOLO("C:/Users/bibhu/IdeaProjects/facelock/webunlockpj/facekeyapp/model/bestfc prj.pt")
-            results= model(image_np)
-            classNames = ["fake", "real"]
-            #text_content="Unauthorised User"
-            for r in results:
-                boxes= r.boxes
-                #imd2,bboxs = detector.findFaces(imd,False)
-                for box in boxes:
-                    # Bounding Box
-                    x1, y1, x2, y2 = box.xyxy[0]
-                    x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-                    #cv2.rectangle(imd,(x1,y1),(x2,y2),(255,0,255),1)
-                    w, h = x2 - x1, y2 - y1
-                    # cvzone.cornerRect(image, (x1, y1, w, h))
-                    # Confidence
-                    conf = math.ceil((box.conf[0] * 100)) / 100
-                    #Class Name
-                    
-                    cls = int(box.cls[0])
-                    if conf > confidence:
-                        print("bibhu")
-                        # model = YOLO("C:/Users/bibhu/IdeaProjects/facelock/webunlockpj/facekeyapp/bestfc prj.pt")
-                        # classNames = ["fake", "real"]
-                        # cls = int(box.cls[0])
-                        if classNames[cls] == 'real':
-                            #print("prsad")
-                            face_location=face_recognition.face_locations(image_np)
-                            for person in list_people_encoding:
-                                encoded_face=person
+        
+                target_encoding = face_recognition.face_encodings(imag)
+                #print(target_encoding)
+                #confidence = 0.3
+                model = YOLO("C:/Users/bibhu/OneDrive/Documents/GitHub/facelock/facekeyapp/models/best.pt")
+                classNames = ["fake", "real"]
+                results= model(imag,stream=True)
+                
+                
+
+                for r in results:
+                    #print("bibbbbbb")
+                    boxes = r.boxes
+                    for box in boxes:
+                        #print("lala")
+                        #print(box)
+                        # BoundingBox
+                        x1, y1, x2, y2 = box.xyxy[0]
+                        x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+                        # cv2.rctangle(img,(x1,1),(2,y2),(255,0,255),3
+                        w, h = x2 - x1, y2 - y1
+                        # Confidence
+                        conf = math.ceil((box.conf[0] * 100)) / 100
+                        # ClassName
+                        cls = int(box.cls[0])
+                        if conf > 0.5:
+                            print("bibhu")
+
+                            if classNames[cls] == 'real':
+                           
+                                print("prasad")
+                                # class stopallloops(Exception):
+                                #      pass 
+                                face_location=face_recognition.face_locations(imag)
+                                # try:
                                 
+                                for person in self.list_people_encoding:
+                                    encoded_face=person
+                                    
+                                    #print("hello")
+                                    is_target_face=face_recognition.compare_faces(encoded_face,target_encoding)
+                                    
 
-                                is_target_face=face_recognition.compare_faces(encoded_face,target_encoding)
-                                #print(f'{is_target_face} {filename}'
+                                    if face_location:
+                                        face_number=0
+                                        for location in face_location:
+                                            if is_target_face[face_number]:
+                                                print("AUTHORISED USER")
+                            
+                                            else:
+                                                face_number += 1
+                                #         if not is_target_face[face_number]:
+                                #             raise stopallloops
+                                # except stopallloops:
+                         
+                                print("UNAUTHORISED USER")
+                                response = HttpResponse("UNAUTHORISED user")
+                                            
+                                                
+                                #                     if not is_target_face[face_number]:
+                                #                         raise stopallloops
+                                # except stopallloops:       
+                                #     print("UNAUTHORISED USER")                                
+                                    #response = HttpResponse("UNAUTHORISED user")
+                    
+        #print("hhh")
+        response = HttpResponse("HHHHHHHHHH")
+        return response                 
 
-                                if face_location:
-                                    face_number=0
-                                    #print("dora")
-                                    for location in face_location:
-                                        if is_target_face[face_number]:
-                                            print("Authorised")
-                                        # else:
-                                        #     print("fake")
-                                            text_content="Authorised User"
-                                            return JsonResponse({'text_content':text_content})
-                                        else:
-                                            face_number += 1
-                        else:
-                            print("Unauthorised User")       
-                            return JsonResponse({'text_content':text_content})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################################################################################################
                         
-
-
-##################################################################################################
-                        
-    # video_stream_app/views.py
-
-
-    # def index(request):
+    # video_stream_app/views
+    # def index(request
     #     return render(request, 'video_stream_app/index.html')
 
     # def upload_video(request):
@@ -332,7 +352,7 @@ class main(View):
 #                                     return HttpResponse("Unkown User")
 #                         else:
 #                             break
-    # views.py
+    # views.p
 
 
     

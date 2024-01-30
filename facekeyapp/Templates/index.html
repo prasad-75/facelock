@@ -10,54 +10,16 @@
 </head>
 <body>
     <h1>Video Streaming</h1>
-    <video id="video" width="640" height="480" autoplay></video>
-    <button id="startButton">Start Streaming</button>
-    <button id="stopButton">Stop Streaming</button>
+    
+    <video id="cameraStream" width="640" height="480" autoplay></video>
+    <canvas id="capturedCanvas" width="640" height="480"></canvas>
 
 
     <script>
-        // video_stream_app/static/video_stream_app/js/script.js
-document.addEventListener('DOMContentLoaded', () => {
-    console.log("sda")
-    const video = document.getElementById('video');
-    const startButton = document.getElementById('startButton');
-    const stopButton = document.getElementById('stopButton');
-    let stream;
-
-    startButton.addEventListener('click', async () => {
-        try {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            video.srcObject = stream;
-        } catch (error) {
-            console.error('Error accessing camera:', error);
-        }
-    });
-
-    stopButton.addEventListener('click', () => {
-        if (stream) {
-            const tracks = stream.getTracks();
-            tracks.forEach(track => track.stop());
-            video.srcObject = null;
-        }
-    });
-});
-
-// Example using plain JavaScript
-const socket = new WebSocket('ws://127.0.0.1:8000/ws/facekeyapp/');
-   
-socket.onopen = function() {
-  console.log('WebSocket connection established.');
-  const message = {
-    'message': 'Hello, world!'
-  };
-  socket.send(JSON.stringify(message));
-};
-socket.onmessage = function(event) {
-  const message = JSON.parse(event.data);
-  console.log('Received message:', message);
-};
 
 
+// // Example using plain JavaScript
+// const socket = new WebSocket('ws://127.0.0.1:8000/ws/facekeyapp');
 
 // // Handle WebSocket events
 // socket.addEventListener('open', (event) => {
@@ -70,13 +32,219 @@ socket.onmessage = function(event) {
 
 // socket.addEventListener('close', (event) => {
 //     console.log('WebSocket connection closed:', event);
-// });
+//});
 
-// // Send video data to the server
-// const videoData = { srcObject:video.srcObject };
-// socket.send(JSON.stringify(videoData));
+// Continuously send image data to the server
+
+var videoElement = document.getElementById('cameraStream');
+var canvasElement = document.getElementById('capturedCanvas');
+var canvasContext = canvasElement.getContext('2d');
+
+
+
+
+function captureAndSendImage() {
+
+
+    document.addEventListener('DOMContentLoaded', () => {
+            // var videoElement = document.getElementById('cameraStream');
+            // var canvasElement = document.getElementById('capturedCanvas');
+            // var canvasContext = canvasElement.getContext('2d');
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    videoElement.srcObject = stream;
+
+                    canvasContext.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+                        
+                        // Get the image data from the canvas
+                    const imgData = canvasContext.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                })
+
+            })
+
+
+            // Convert canvas to base64 encoded imag
+            var imageData = canvasElement.toDataURL('image/jpeg'); // You can change the format here
+            // console.log('imgg', imageData);
+
+            const formData = new FormData(); // Create FormData object
+            // Append form fields to FormData object
+            formData.append('image', imageData);
+
+            fetch('/bibhu/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body:formData // Send the base64 image data
+            })
+            .then(response => {
+                // Handle the response from the backend
+                console.log('Image uploaded successfully:', response);
+            })
+            .catch(error => {
+                console.error('Error uploading image:', error);
+            });
+
+
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            var img = document.createElement('img');
+            img.src = imageData;
+            img.alt = 'Displayed Image';
+            img.width = 300;
+            img.height = 200;
+            document.body.appendChild(img);
+
+
+
+    // // Capture image data from user's camera (use your preferred method)
+    // const imageData = imgData;
+
+    // // Send the image data to the server
+    // socket.send(JSON.stringify(imageData));
+
+
+    // Call this function again after a delay to capture the next image
+    setTimeout(captureAndSendImage, 500);  // Adjust the delay as needed
+}
+
+// Start the image capture and send proce
+captureAndSendImage();
 
 
     </script>
 </body>
 </html>
+
+
+
+
+
+
+<!-- //     document.addEventListener('DOMContentLoaded', () => {
+    //             const videoElement = document.getElementById('cameraStream');
+    
+    //             // Check if the browser supports getUserMedia
+    //             if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    //                 // Access the user's camera
+    //                 navigator.mediaDevices.getUserMedia({ video: true })
+    //                     .then((stream) => {
+    //                         // Assign the stream to the video element
+    //                         videoElement.srcObject = stream;
+    //                     })
+    //                     .catch((error) => {
+    //                         console.error('Error accessing camera:', error);
+    //                     });
+    //             } else {
+    //                 console.error('getUserMedia is not supported in this browser');
+    //             }
+    //         });
+    
+    
+    // var loc=windows.location;
+    // var wsStart='ws://';
+    
+    // if(loc.protocol=='https:'){
+    //     wsStart='ws://';
+    // }
+    
+    
+    // var endPoint=wsStart+loc.host+loc.pathname;
+    
+    // console.log('endPoint:',endPoint);
+    
+    // WebSocket=new WebSocket(endPoint);
+    
+    // // Example using plain JavaScript
+    // // const socket = new WebSocket('ws://127.0.0.1:8000/bibhu/ws/facekeyapp/');
+    // socket.onopen = function() {
+    //   console.log('WebSocket connection established.');
+    //   const message = {
+    //     'message': 'Hello, world!'
+    //   };
+    //   socket.send(JSON.stringify(message));
+    // };
+    // socket.onmessage = function(event) {
+    //   const message = JSON.parse(event.data);
+    //   console.log('Received message:', message);
+    // };
+    
+    
+    // const videoData = { srcObject:video.srcObject };
+    // socket.send(JSON.stringify(videoData));
+     -->
+
+
+
+
+
+
+
+
+
+
+
+     <!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Capture</title>
+</head>
+<body>
+    <h1>Camera Capture</h1>
+    
+    <video id="video" width="640" height="480" autoplay></video>
+    <!-- <button id="captureBtn">Capture Image</button> -->
+    <!-- <canvas id="canvas" width="640" height="480"></canvas>
+
+    <script>
+        var video = document.getElementById('video');
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        document.addEventListener('DOMContentLoaded', () => {
+            // Get access to the user's came
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then((stream) => {
+                    var video = document.getElementById('video');
+                    video.srcObject = stream;
+                })
+                .catch((error) => {
+                    console.error('Error accessing camera:', error);
+                });
+            })
+            // Capture image from the video stream and display it on the canvas
+            // 
+            
+            function captureAndSendImage() {
+                var video = document.getElementById('video');
+                var canvas = document.getElementById('canvas');
+                var context = canvas.getContext('2d');
+
+                // Draw the current frame from the video onto the canvas
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Stop the video stream
+                video.srcObject.getTracks().forEach(track => track.stop());
+
+            };
+
+            captureAndSendImage();
+    
+    </script>
+</body>
+</html> --> -->

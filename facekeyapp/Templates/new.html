@@ -1,78 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Camera Image Capture</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Continuous Camera Image Capture</title>
 </head>
 <body>
-    <form id="imageForm" enctype="multipart/form-data">
-        <video id="videoElement" width="640" height="480" autoplay></video>
-        <button id="captureButton" type="button">Capture Image</button>
-    </form>
-    
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            const video = document.getElementById('videoElement');
-            const captureButton = document.getElementById('captureButton');
-
-            captureButton.addEventListener('click', async function() {
-                try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                    video.srcObject = stream;
-                    video.play();
-                    
-                    // Capture image from video stream
-                    const canvas = document.createElement('canvas');
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
-                    const imageData = canvas.toDataURL('image/png');
-
-                    // var img=imageData.src.split(',')[1];
-                    // var binarydata=atob(img)
-                    
-                    var file = imageData.files[0];
-
-                    var formData = new FormData();
-                    formData.append('file', file);
+  <h1>Continuous Camera Image Capture</h1>
+  <video id="camera" width="640" height="480" autoplay></video>
+  <canvas id="capturedImage" width="640" height="480"></canvas>
 
 
-                    fetch('/upload/', {
-                        method: 'POST',
-                        body: formData
-                    })
+  <div id="response-container">
 
-                    HttpRespose('bibhu')
+  </div>
 
-                    } 
-                
-                catch (error) {
-                    console.error('Error accessing the camera:', error);
-                    alert('Error accessing the camera. Please allow camera access.');
-                }
-            });
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const video = document.getElementById('camera');
+      const canvas = document.getElementById('capturedImage');
+      const context = canvas.getContext('2d');
 
-        //     function sendImageToBackend(imageData) {
-        //         $.ajax({
-        //             url: '/handle_image/',
-        //             type: 'POST',
-        //             headers: {
-        //                 'X-CSRFToken': getCookie('csrftoken')
-        //             },
-        //             data: { image_data: imageData },
-        //             success: function(response) {
-        //                 // Handle success response
-        //                 console.log(response);
-        //             },
-        //             error: function(error) {
-        //                 // Handle error response
-        //                 console.error('Error sending image data:', error);
-        //                 alert('Error sending image data.');
-        //             }
-        //         });
-        //     }
 
-            function getCookie(name) {
+      // Access the user's camera
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+          captureAndDisplay();
+        })
+        .catch(error => {
+          console.error('Error accessing camera:', error);
+        });
+
+
+
+
+
+
+
+
+
+
+
+      // Continuous capture and displa
+      function captureAndDisplay() {
+        // requestAnimationFrame(captureAndDisplay);
+
+
+        // Convert canvas to base64 encoded image
+        const canvas = document.getElementById('capturedImage');
+        const imageData = canvas.toDataURL('image/jpeg'); // You can change the format here
+        
+        // const formData = new FormData();
+        // formData.append('image', imageData);
+        // const formData = new FormData(); // Create FormData object
+        // // Append form fields to FormData objec
+        // formData.append('image', imageData);
+        fetch('http://127.0.0.1:8000/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json',
+            },
+            body:JSON.stringify({ image: imageData }),// Send the base64 image data
+        })
+        .then(response => {
+            // Handle the response from the backe
+            console.log('Image uploaded successfully:', response);
+        })
+        .catch(error => {
+            console.error('Error uploading image:', error);
+        });
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        setTimeout(captureAndDisplay, 3000);
+      }
+
+      captureAndDisplay()
+
+
+
+
+
+
+
+
+
+
+      // Fetch the response from the backend
+    fetch('/bibhu/')  // Replace with the actual URL of your backend endpoint
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.text();  // Adjust based on the expected response type (text, JSON, etc.)
+      })
+      .then(data => {
+        // Display the response in the frontend
+        document.getElementById('response-container').innerHTML = data;
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+      });
+
+
+
+
+
+
+
+
+
+      function getCookie(name) {
                 var cookieValue = null;
                 if (document.cookie && document.cookie !== '') {
                     var cookies = document.cookie.split(';');
@@ -86,7 +124,15 @@
                 }
                 return cookieValue;
             }
-        });
-    </script>
+
+    });
+  </script>
 </body>
 </html>
+
+<!-- 
+JSON.stringify({ image:imageData }), -->
+
+
+
+<!-- 'X-CSRFToken': getCookie('csrftoken') -->
