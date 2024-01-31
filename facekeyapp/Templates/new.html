@@ -43,7 +43,7 @@
 
 
       // Continuous capture and displa
-      function captureAndDisplay() {
+      async function captureAndDisplay() {
         // requestAnimationFrame(captureAndDisplay);
 
 
@@ -56,21 +56,15 @@
         // const formData = new FormData(); // Create FormData object
         // // Append form fields to FormData objec
         // formData.append('image', imageData);
-        fetch('http://127.0.0.1:8000/', {
+        let response  = await fetch('http://127.0.0.1:8000/', {
             method: 'POST',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken'),
                 'Content-Type': 'application/json',
             },
             body:JSON.stringify({ image: imageData }),// Send the base64 image data
-        })
-        .then(response => {
-            // Handle the response from the backe
-            console.log('Image uploaded successfully:', response);
-        })
-        .catch(error => {
-            console.error('Error uploading image:', error);
         });
+        console.log(await response.json())
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         setTimeout(captureAndDisplay, 3000);
       }
@@ -87,28 +81,20 @@
 
 
       // Fetch the response from the backend
-    fetch('/bibhu/')  // Replace with the actual URL of your backend endpoint
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        return response.text();  // Adjust based on the expected response type (text, JSON, etc.)
-      })
-      .then(data => {
-        // Display the response in the frontend
-        document.getElementById('response-container').innerHTML = data;
-      })
-      .catch(error => {
-        console.error('Error fetching data:', error);
-      });
-
-
-
-
-
-
-
-
+    // fetch('/bibhu/')  // Replace with the actual URL of your backend endpoint
+    //   .then(response => {
+    //     if (!response.ok) {
+    //       throw new Error('Network response was not ok');
+    //     }
+    //     return response.text();  // Adjust based on the expected response type (text, JSON, etc.)
+    //   })
+    //   .then(data => {
+    //     // Display the response in the frontend
+    //     document.getElementById('response-container').innerHTML = data;
+    //   })
+    //   .catch(error => {
+    //     console.error('Error fetching data:', error);
+    //   });
 
       function getCookie(name) {
                 var cookieValue = null;

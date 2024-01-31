@@ -86,7 +86,7 @@ class main(View):
                 #x=BytesIO(imd)
                 #print(x.getvalue())  # Print the content of BytesIO
                 img=Image.open(BytesIO(imd))
-                img.show()
+                # img.show()
                 image_n = np.array(img)
                 face_locations = face_recognition.face_locations(image_n)
                 if face_locations:
@@ -107,7 +107,6 @@ class main(View):
 
 
     def post(self,request):
-
         if request.method == 'POST':
             
             data = json.loads(request.body.decode('utf-8'))
@@ -174,15 +173,14 @@ class main(View):
                                         for location in face_location:
                                             if is_target_face[face_number]:
                                                 print("AUTHORISED USER")
-                            
+                                                return JsonResponse({'output':'authorizedUser'})
                                             else:
                                                 face_number += 1
-                                #         if not is_target_face[face_number]:
+                                #  if not is_target_face[face_number]:
                                 #             raise stopallloops
                                 # except stopallloops:
                          
-                                print("UNAUTHORISED USER")
-                                response = HttpResponse("UNAUTHORISED user")
+                                # print("UNAUTHORISED USER")
                                             
                                                 
                                 #                     if not is_target_face[face_number]:
@@ -191,12 +189,9 @@ class main(View):
                                 #     print("UNAUTHORISED USER")                                
                                     #response = HttpResponse("UNAUTHORISED user")
                     
-        #print("hhh")
-        response = HttpResponse("HHHHHHHHHH")
-        return response                 
-
-
-
+        print("hhh")
+        return JsonResponse({'output':'unauthorizedUser'})
+          
 
 
 
