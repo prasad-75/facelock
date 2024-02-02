@@ -55,10 +55,13 @@ class main(View):
                 #print(x.getvalue())  # Print the content of BytesIO
                 img=Image.open(BytesIO(imd))
                 # img.show()
-                image_n = np.array(img)
-                face_locations = face_recognition.face_locations(image_n)
+                #image_n = np.array(img)
+                image_array = np.frombuffer(imd, dtype=np.uint8)
+                imag = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+
+                face_locations = face_recognition.face_locations(imag)
                 if face_locations:
-                    face_encoding = face_recognition.face_encodings(image_n, known_face_locations=face_locations)[0]
+                    face_encoding = face_recognition.face_encodings(imag, known_face_locations=face_locations)[0]
                     #print(self.face_encoding)
                     self.list_people_encoding.append((face_encoding))
                     #self.face_encoding
@@ -78,7 +81,9 @@ class main(View):
         if request.method == 'POST':
             data = json.loads(request.body.decode('utf-8'))
             img_data = data.get('image')
-            self.generating_face_encoding( username = data.get('username'))
+            response = self.generating_face_encoding( username = data.get('username'))
+            if(response == "Face recognition disabled"):
+                return JsonResponse({'output':response})
             if img_data:
                 
                 _, imgstr = img_data.split(';base64,')
@@ -144,7 +149,7 @@ class main(View):
                                             #     face_number += 1
                             
                     
-        print("hhhh")
+        print("unauthorizedUser")
         return JsonResponse({'output':'unauthorizedUser'})
           
 
@@ -163,28 +168,32 @@ class main(View):
             cursor = db_connection.cursor()
 
 
-            query = f"SELECT face_recognizing_data FROM t_users WHERE username = '"+username+"'"
+            query = f"SELECT face_recognizing_data FROM t_users WHERE username = '"+username+"' AND is_face_recognition_enabled = TRUE"
             cursor.execute(query)
 
             results = cursor.fetchall()
-            for result in results:
-                imd=result[0]
-                #x=BytesIO(imd)
-                #print(x.getvalue())  # Print the content of BytesIO
-                img=Image.open(BytesIO(imd))
-                # img.show()
-                image_n = np.array(img)
-                face_locations = face_recognition.face_locations(image_n)
-                if face_locations:
-                    face_encoding = face_recognition.face_encodings(image_n, known_face_locations=face_locations)[0]
-                    #print(self.face_encoding)
-                    self.list_people_encoding.append((face_encoding))
-                    #self.face_encoding
+            if (len(results) > 0):
+                for result in results:
+                    imd=result[0]
+                    #x=BytesIO(imd)
+                    #print(x.getvalue())  # Print the content of BytesIO
+                    img=Image.open(BytesIO(imd))
+                    # img.show()
+                    image_n = np.array(img)
+                    face_locations = face_recognition.face_locations(image_n)
+                    if face_locations:
+                        face_encoding = face_recognition.face_encodings(image_n, known_face_locations=face_locations)[0]
+                        #print(self.face_encoding)
+                        self.list_people_encoding.append((face_encoding))
+                        #self.face_encoding
+                    #print(list_people_encoding)
                 #print(list_people_encoding)
-            #print(list_people_encoding)
+            else :
+                return "Face recognition disabled"
             
         cursor.close()
         db_connection.close()
+        return "Fetched successfully"
 
 
 
