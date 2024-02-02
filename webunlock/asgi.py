@@ -16,7 +16,7 @@ from facekeyapp.urls import websocket_urlpatterns
 from django.urls import path
 from django.core.asgi import get_asgi_application
 
-#os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webunlock.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'webunlock.settings')
 #django.setup()
 #application = get_asgi_application()
 
