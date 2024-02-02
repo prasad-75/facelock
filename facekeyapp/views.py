@@ -76,9 +76,9 @@ class main(View):
 
     def post(self,request):
         if request.method == 'POST':
-            self.generating_face_encoding()
             data = json.loads(request.body.decode('utf-8'))
             img_data = data.get('image')
+            self.generating_face_encoding( username = data.get('username'))
             if img_data:
                 
                 _, imgstr = img_data.split(';base64,')
@@ -149,7 +149,7 @@ class main(View):
           
 
 
-    def generating_face_encoding(self):
+    def generating_face_encoding(self, username):
         db_connection = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -163,7 +163,7 @@ class main(View):
             cursor = db_connection.cursor()
 
 
-            query = f"SELECT face_recognizing_data FROM t_users WHERE username = 'srinath'"
+            query = f"SELECT face_recognizing_data FROM t_users WHERE username = '"+username+"'"
             cursor.execute(query)
 
             results = cursor.fetchall()
