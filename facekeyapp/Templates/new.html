@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Continuous Camera Image Capture</title>
 </head>
+
 <body>
   <h1>Continuous Camera Image Capture</h1>
+  <!-- {% csrf_token %} -->
   <video id="camera" width="640" height="480" autoplay></video>
   <canvas id="capturedImage" width="640" height="480"></canvas>
 
@@ -50,26 +53,26 @@
         // Convert canvas to base64 encoded image
         const canvas = document.getElementById('capturedImage');
         const imageData = canvas.toDataURL('image/jpeg'); // You can change the format here
-        
+
         // const formData = new FormData();
         // formData.append('image', imageData);
         // const formData = new FormData(); // Create FormData object
         // // Append form fields to FormData objec
         // formData.append('image', imageData);
-        let response  = await fetch('http://127.0.0.1:8000/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Content-Type': 'application/json',
-            },
-            body:JSON.stringify({ image: imageData }),// Send the base64 image data
+        let response = await fetch('http://127.0.0.1:8000', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ image: imageData }),// Send the base64 image data
         });
         console.log(await response.json())
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         setTimeout(captureAndDisplay, 3000);
       }
 
-      captureAndDisplay()
+      // captureAndDisplay()
 
 
 
@@ -81,39 +84,41 @@
 
 
       // Fetch the response from the backend
-    // fetch('/bibhu/')  // Replace with the actual URL of your backend endpoint
-    //   .then(response => {
-    //     if (!response.ok) {
-    //       throw new Error('Network response was not ok');
-    //     }
-    //     return response.text();  // Adjust based on the expected response type (text, JSON, etc.)
-    //   })
-    //   .then(data => {
-    //     // Display the response in the frontend
-    //     document.getElementById('response-container').innerHTML = data;
-    //   })
-    //   .catch(error => {
-    //     console.error('Error fetching data:', error);
-    //   });
+      // fetch('/bibhu/')  // Replace with the actual URL of your backend endpoint
+      //   .then(response => {
+      //     if (!response.ok) {
+      //       throw new Error('Network response was not ok');
+      //     }
+      //     return response.text();  // Adjust based on the expected response type (text, JSON, etc.)
+      //   })
+      //   .then(data => {
+      //     // Display the response in the frontend
+      //     document.getElementById('response-container').innerHTML = data;
+      //   })
+      //   .catch(error => {
+      //     console.error('Error fetching data:', error);
+      //   });
 
       function getCookie(name) {
-                var cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    var cookies = document.cookie.split(';');
-                    for (var i = 0; i < cookies.length; i++) {
-                        var cookie = cookies[i].trim();
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+          var cookies = document.cookie.split(';');
+          for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+              cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+              break;
             }
+          }
+        }
+        console.log(cookieValue)
+        return cookieValue;
+      }
 
     });
   </script>
 </body>
+
 </html>
 
 <!-- 
@@ -121,4 +126,4 @@ JSON.stringify({ image:imageData }), -->
 
 
 
-<!-- 'X-CSRFToken': getCookie('csrftoken') -->
+'X-CSRFToken': getCookie('csrftoken')

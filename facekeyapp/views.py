@@ -55,17 +55,16 @@ import mysql.connector
 
 
 
-
 class main(View):
     list_people_encoding=[]
 
     def get(self,request):
   
         db_connection = mysql.connector.connect(
-            host="127.0.0.1",
+            host="localhost",
             user="root",
-            password="1234",
-            database="lk"
+            password="1210",
+            database="pcr"
         )
 
         #list_people_encoding=[]
@@ -75,14 +74,12 @@ class main(View):
             cursor = db_connection.cursor()
 
 
-            query = f"SELECT img_data FROM images where username ='bibhu'"
+            query = f"SELECT face_recognizing_data FROM t_users WHERE username = 'srinath'"
             cursor.execute(query)
 
             results = cursor.fetchall()
-            #print("output", results)
             for result in results:
                 imd=result[0]
-                #print("image" , imd)s
                 #x=BytesIO(imd)
                 #print(x.getvalue())  # Print the content of BytesIO
                 img=Image.open(BytesIO(imd))
@@ -105,18 +102,17 @@ class main(View):
 
     ####################################################################################################################################
 
-
     def post(self,request):
         if request.method == 'POST':
-            
             data = json.loads(request.body.decode('utf-8'))
             img_data = data.get('image')
+            self.generating_face_encoding( username = data.get('username'))
             if img_data:
                 
                 _, imgstr = img_data.split(';base64,')
                 img_bytes = base64.b64decode(imgstr)
                 image = Image.open(BytesIO(img_bytes))
-                #image.show()
+                # image.show()
                 image_np = np.array(image)
                 #print(image_np)
                 #image_n = cv2.imread(image_np)
@@ -129,7 +125,7 @@ class main(View):
                 target_encoding = face_recognition.face_encodings(imag)
                 #print(target_encoding)
                 #confidence = 0.3
-                model = YOLO("C:/Users/bibhu/OneDrive/Documents/GitHub/facelock/facekeyapp/models/best.pt")
+                model = YOLO("C:/Users/srina/OneDrive/Documents/GitHub/facelock/facekeyapp/models/best.pt")
                 classNames = ["fake", "real"]
                 results= model(imag,stream=True)
                 
@@ -194,6 +190,42 @@ class main(View):
           
 
 
+    def generating_face_encoding(self, username):
+        db_connection = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="1210",
+            database="pcr"
+        )
+
+        
+        if db_connection.is_connected():
+            print("connected")
+            cursor = db_connection.cursor()
+
+
+            query = f"SELECT face_recognizing_data FROM t_users WHERE username = '"+username+"'"
+            cursor.execute(query)
+
+            results = cursor.fetchall()
+            for result in results:
+                imd=result[0]
+                #x=BytesIO(imd)
+                #print(x.getvalue())  # Print the content of BytesIO
+                img=Image.open(BytesIO(imd))
+                # img.show()
+                image_n = np.array(img)
+                face_locations = face_recognition.face_locations(image_n)
+                if face_locations:
+                    face_encoding = face_recognition.face_encodings(image_n, known_face_locations=face_locations)[0]
+                    #print(self.face_encoding)
+                    self.list_people_encoding.append((face_encoding))
+                    #self.face_encoding
+                #print(list_people_encoding)
+            #print(list_people_encoding)
+            
+        cursor.close()
+        db_connection.close()
 
 
 
