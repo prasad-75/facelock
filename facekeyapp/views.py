@@ -5,7 +5,7 @@ from django.views import View
 import base64
 from django.views.decorators.csrf import csrf_exempt
 import math
-from deepface import DeepFace
+# from deepface import DeepFace
 from cvzone.FaceDetectionModule import FaceDetector
 from PIL import Image
 import io
@@ -15,7 +15,7 @@ import bbox
 
 
 import json
-import opencv
+# import opencv
 import cv2
 import cvzone
 import face_recognition
@@ -174,7 +174,7 @@ class main(View):
                                         for location in face_location:
                                             if is_target_face[face_number]:
                                                 print("AUTHORISED USER")
-                                                return JsonResponse({'output':'authorizedUser'})
+                                                return JsonResponse({'output':'AuthorizedUser'})
                                             else:
                                                 face_number += 1
                                 #  if not is_target_face[face_number]:
