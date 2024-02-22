@@ -105,6 +105,7 @@ class main(View):
             response = self.generating_face_encoding( username = data.get('username'))
             if(response == "Face recognition disabled"):
                 return JsonResponse({'output':response})
+            
             if img_data:
                 
                 _, imgstr = img_data.split(';base64,')
@@ -123,7 +124,7 @@ class main(View):
                 target_encoding = face_recognition.face_encodings(imag)
                 #print(target_encoding)
                 #confidence = 0.3
-                model = YOLO("models/best.pt")
+                model = YOLO("C:\\Users\\srina\\OneDrive\\Documents\\GitHub\\facelock\\facekeyapp\\models\\best.pt")
                 classNames = ["fake", "real"]
                 results= model(imag,stream=True)
                 
@@ -153,14 +154,17 @@ class main(View):
                                 # class stopallloops(Exception):
                                 #      pass 
                                 face_location=face_recognition.face_locations(imag)
-                                # try:
-                                
+                                # try
+                                print("encodings")
+                                print( self.list_people_encoding)
                                 for person in self.list_people_encoding:
                                     encoded_face=person
                                     
                                     #print("hello")
-                                    is_target_face=face_recognition.compare_faces(encoded_face,target_encoding)
-                                    
+                                    try :
+                                        is_target_face=face_recognition.compare_faces(encoded_face,target_encoding)
+                                    except ValueError :
+                                        return JsonResponse({'output':'unauthorizedUser'})
 
                                     if face_location:
                                         face_number=0
@@ -170,6 +174,10 @@ class main(View):
                                                 return JsonResponse({'output':'AuthorizedUser'})
                                             else:
                                                 face_number += 1
+                                    person+=1
+                                return JsonResponse({'output':'unauthorizedUser'})
+                            else:
+                                return JsonResponse({'output':'fakeimage'})
                                 #  if not is_target_face[face_number]:
                                 #             raise stopallloops
                                 # except stopallloops:
@@ -184,7 +192,7 @@ class main(View):
                                     #response = HttpResponse("UNAUTHORISED user")
                     
         print("unauthorizedUser")
-        return JsonResponse({'output':'unauthorizedUser'})
+        return JsonResponse({'output':'no user detected'})
           
 
 
@@ -214,13 +222,15 @@ class main(View):
                     img=Image.open(BytesIO(imd))
                     # img.show()
                     image_n = np.array(img)
+                    print(image_n)
                     face_locations = face_recognition.face_locations(image_n)
                     if face_locations:
                         face_encoding = face_recognition.face_encodings(image_n, known_face_locations=face_locations)[0]
                         #print(self.face_encoding)
                         self.list_people_encoding.append((face_encoding))
                         #self.face_encoding
-                    #print(list_people_encoding)
+                    # print("db")
+                    # print(self.list_people_encoding)
                 #print(list_people_encoding)
             else :
                 return "Face recognition disabled"
