@@ -6,34 +6,27 @@ import base64
 from django.views.decorators.csrf import csrf_exempt
 import math
 # from deepface import DeepFace
-from cvzone.FaceDetectionModule import FaceDetector
+#from cvzone.FaceDetectionModule import FaceDetector
 from PIL import Image
-import io
 from io import BytesIO
-import threading 
-import bbox
 
 
 import json
 # import opencv
 import cv2
-import cvzone
+#import cvzone
 import face_recognition
 import numpy as np
 from ultralytics import YOLO
-from tkinter import Tk
-from tkinter.filedialog import askopenfilename
-import os
+# from tkinter import Tk
+# from tkinter.filedialog import askopenfilename
+#import os
 
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import base64
 
-from django.http import JsonResponse
-import base64
 
-from PIL import Image
-from io import BytesIO
+
+
+
 
 
 from django.shortcuts import render
@@ -130,7 +123,7 @@ class main(View):
                 target_encoding = face_recognition.face_encodings(imag)
                 #print(target_encoding)
                 #confidence = 0.3
-                model = YOLO("C:/Users/srina/OneDrive/Documents/GitHub/facelock/facekeyapp/models/best.pt")
+                model = YOLO("models/best.pt")
                 classNames = ["fake", "real"]
                 results= model(imag,stream=True)
                 
