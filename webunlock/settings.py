@@ -58,6 +58,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
+    "https://www.products.staunchinfos.com"
     "http://localhost:4200",
     "http://127.0.0.1:5501",  # Replace with the origin of your frontend
 ]
