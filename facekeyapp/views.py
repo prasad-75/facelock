@@ -17,6 +17,10 @@ import numpy as np
 from ultralytics import YOLO
 
 import mysql.connector
+import cvzone
+from cvzone.FaceDetectionModule import FaceDetector
+import bbox
+
 
 
 
@@ -36,23 +40,24 @@ class main(View):
                if img_data :     
                     _, imgstr = img_data.split(';base64,')
                     img_bytes = base64.b64decode(imgstr)
-                    image = Image.open(BytesIO(img_bytes))
+                    #image = Image.open(BytesIO(img_bytes))
                     # image.show()
                     #image_np = np.array(image)
                     #print(image_np)
                     #image_n = cv2.imread(image_np)
                     image_array = np.frombuffer(img_bytes, dtype=np.uint8)
                     imag = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
-
+                    detector=FaceDetector()
+                    img,bboxs = detector.findFaces(imag, draw=True)
 
             
             
-                    target_encoding = face_recognition.face_encodings(imag)
+                    target_encoding = face_recognition.face_encodings(img)
                     #print(target_encoding)
                     #confidence = 0.3
                     model = YOLO("C:\\Users\\srina\\OneDrive\\Documents\\GitHub\\facelock\\facekeyapp\\models\\best.pt")
                     classNames = ["fake", "real"]
-                    results= model(imag,stream=True)
+                    results= model(img,stream=True)
                     
                     
 
@@ -100,8 +105,8 @@ class main(View):
                                                     face_number += 1
                                         person+=1
                                     return JsonResponse({'output':'unauthorizedUser'})
-                                else:
-                                    return JsonResponse({'output':'fakeimage'})
+                                # else:
+                                #     return JsonResponse({'output':'fakeimage'})
                                     #  if not is_target_face[face_number]:
                                     #             raise stopallloops
                                     # except stopallloops:
@@ -115,8 +120,8 @@ class main(View):
                                     #     print("UNAUTHORISED USER")                                
                                         #response = HttpResponse("UNAUTHORISED user")
                     
-        print("unauthorizedUser")
-        return JsonResponse({'output':'no user detected'})
+        print("Fake Image")
+        return JsonResponse({'output':'Fake Image'})
           
 
 
