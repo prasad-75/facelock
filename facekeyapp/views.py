@@ -104,7 +104,12 @@ class main(View):
                                                 else:
                                                     face_number += 1
                                         person+=1
-                                    return JsonResponse({'output':'unauthorizedUser'})
+                                    return JsonResponse({'output':'UnauthorizedUser'})
+                                
+                                return JsonResponse({'output':'Fake Image'})
+                           
+                            return JsonResponse({'output':'Image not Clear'})
+
                                 # else:
                                 #     return JsonResponse({'output':'fakeimage'})
                                     #  if not is_target_face[face_number]:
@@ -119,10 +124,10 @@ class main(View):
                                     # except stopallloops:       
                                     #     print("UNAUTHORISED USER")                                
                                         #response = HttpResponse("UNAUTHORISED user")
-                    
-        print("Fake Image")
-        return JsonResponse({'output':'Fake Image'})
-          
+                    else:
+                        print("Fetching Data,Please wait")
+                        return JsonResponse({'output':'Fetching Data,Please wait'})
+            
 
 
     def generating_face_encoding(self, username):
