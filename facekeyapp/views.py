@@ -26,6 +26,9 @@ import bbox
 
 class main(View):
     list_people_encoding=[]
+    # def get(self,request):
+    
+    #     return render (request,'tem.html')
 
 
     def post(self,request):
@@ -36,11 +39,13 @@ class main(View):
             if(response == "Face recognition disabled"):
                 return JsonResponse({'output':response})
             
+          
+            
             for img_data in imgs:
                if img_data :     
                     _, imgstr = img_data.split(';base64,')
                     img_bytes = base64.b64decode(imgstr)
-                    #image = Image.open(BytesIO(img_bytes))
+                    image = Image.open(BytesIO(img_bytes))
                     # image.show()
                     #image_np = np.array(image)
                     #print(image_np)
@@ -75,25 +80,25 @@ class main(View):
                             # ClassName
                             cls = int(box.cls[0])
                             if conf > 0.5:
-                                print("bibhu")
+                                print("clear")
 
                                 if classNames[cls] == 'real':
                             
-                                    print("prasad")
-                                    # class stopallloops(Exception):
-                                    #      pass 
+                                    print("real")
                                     face_location=face_recognition.face_locations(imag)
                                     # try
-                                    # print("encodings")
+                                    
                                     # print( self.list_people_encoding)
                                     for person in self.list_people_encoding:
                                         encoded_face=person
                                         
-                                        #print("hello")
+                                        
                                         try :
                                             is_target_face=face_recognition.compare_faces(encoded_face,target_encoding)
                                         except ValueError :
                                             continue
+
+                                        
                                         
                                         if face_location:
                                             face_number=0
@@ -102,13 +107,14 @@ class main(View):
                                                     print("AUTHORISED USER")
                                                     return JsonResponse({'output':'AuthorizedUser'})
                                                 else:
-                                                    face_number += 1
-                                        person+=1
-                                    return JsonResponse({'output':'UnauthorizedUser'})
-                                
-                                return JsonResponse({'output':'Fake Image'})
-                           
-                            return JsonResponse({'output':'Image not Clear'})
+                                                    # face_number += 1
+                                                    print("UNAUTHORISED USER")
+                                                    return JsonResponse({'output':'unauthorizedUser'})
+                                        # person+=1
+                                    
+                                    # return JsonResponse({'output':'unauthorizedUser'})
+                                else:
+                                    return JsonResponse({'output':'fakeimage'})
 
                                 # else:
                                 #     return JsonResponse({'output':'fakeimage'})
@@ -134,7 +140,7 @@ class main(View):
         db_connection = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="1210",
+            password="1234",
             database="pcr"
         )
 
@@ -143,29 +149,26 @@ class main(View):
             print("connected")
             cursor = db_connection.cursor()
 
+            # if username is None:
+            #     query = f"SELECT face_recognizing_data FROM pcr.t_users"  
+            # else:
+            #      query = f"SELECT face_recognizing_data FROM pcr.t_users where username='nithi'"
 
-            query = f"SELECT face_recognizing_data FROM t_users WHERE username = '"+username+"' AND is_face_recognition_enabled = TRUE"
+            query = f"SELECT face_recognizing_data FROM pcr.t_users where username='"+username+"' AND is_face_recognition_enabled = TRUE"
+
             cursor.execute(query)
-
             results = cursor.fetchall()
+
             if (len(results) > 0):
                 for result in results:
                     imd=result[0]
-                    #x=BytesIO(imd)
-                    #print(x.getvalue())  # Print the content of BytesIO
                     img=Image.open(BytesIO(imd))
-                    # img.show()
+                    #img.show()
                     image_n = np.array(img)
-                    # print(image_n)
                     face_locations = face_recognition.face_locations(image_n)
                     if face_locations:
                         face_encoding = face_recognition.face_encodings(image_n, known_face_locations=face_locations)[0]
-                        #print(self.face_encoding)
                         self.list_people_encoding.append((face_encoding))
-                        #self.face_encoding
-                    # print("db")
-                    # print(self.list_people_encoding)
-                #print(list_people_encoding)
             else :
                 return "Face recognition disabled"
             
