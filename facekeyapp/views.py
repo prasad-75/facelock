@@ -26,27 +26,28 @@ import bbox
 
 class main(View):
     list_people_encoding=[]
-    # def get(self,request):
-    
-    #     return render (request,'tem.html')
+    def get(self,request):
+        #response = self.generating_face_encoding(username="nithi")
+        return render (request,'tem.html')
 
 
     def post(self,request):
         if request.method == 'POST':
             data = json.loads(request.body.decode('utf-8'))
             imgs = data.get('image')
-            response = self.generating_face_encoding( username = data.get('username'))
-            if(response == "Face recognition disabled"):
-                return JsonResponse({'output':response})
+            username='nithi'
+            response = self.generating_face_encoding(username)   #username = data.get('username')
+            # if(response == "Face recognition disabled"):
+            #     return JsonResponse({'output':response})
             
           
             
-            for img_data in imgs:
-               if img_data :     
-                    _, imgstr = img_data.split(';base64,')
+            # for img_data in imgs:
+            if imgs :     
+                    _, imgstr = imgs.split(';base64,')
                     img_bytes = base64.b64decode(imgstr)
                     image = Image.open(BytesIO(img_bytes))
-                    # image.show()
+                    #image.show()
                     #image_np = np.array(image)
                     #print(image_np)
                     #image_n = cv2.imread(image_np)
@@ -57,10 +58,10 @@ class main(View):
 
             
             
-                    target_encoding = face_recognition.face_encodings(img)
+                    target_encoding = face_recognition.face_encodings(imag)
                     #print(target_encoding)
                     #confidence = 0.3
-                    model = YOLO("C:\\Users\\srina\\OneDrive\\Documents\\GitHub\\facelock\\facekeyapp\\models\\best.pt")
+                    model = YOLO("C:\\Users\\bibhu\\OneDrive\\Documents\\GitHub\\testfacelock\\testfl\\testflapp\\models\\best.pt")
                     classNames = ["fake", "real"]
                     results= model(img,stream=True)
                     
@@ -112,9 +113,7 @@ class main(View):
                                                     return JsonResponse({'output':'unauthorizedUser'})
                                         # person+=1
                                     
-                                    # return JsonResponse({'output':'unauthorizedUser'})
-                                else:
-                                    return JsonResponse({'output':'fakeimage'})
+                                    
 
                                 # else:
                                 #     return JsonResponse({'output':'fakeimage'})
@@ -154,7 +153,7 @@ class main(View):
             # else:
             #      query = f"SELECT face_recognizing_data FROM pcr.t_users where username='nithi'"
 
-            query = f"SELECT face_recognizing_data FROM pcr.t_users where username='"+username+"' AND is_face_recognition_enabled = TRUE"
+            query = f"SELECT face_recognizing_data FROM pcr.t_users where username='nithi' AND is_face_recognition_enabled = TRUE"
 
             cursor.execute(query)
             results = cursor.fetchall()
