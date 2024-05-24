@@ -35,6 +35,7 @@ class main(View):
         if request.method == 'POST':
             data = json.loads(request.body.decode('utf-8'))
             imgs = data.get('image')
+            
             username='nithi'
             response = self.generating_face_encoding(username)   #username = data.get('username')
             # if(response == "Face recognition disabled"):
@@ -42,9 +43,14 @@ class main(View):
             
           
             
-            # for img_data in imgs:
-            if imgs :     
+            for img_data in imgs:
+                    
                     _, imgstr = imgs.split(';base64,')
+                    # print(img_parts)
+                    # imgstr = img_parts[1]
+                    
+                
+                    # imgstr = img_data.split(';base64,')
                     img_bytes = base64.b64decode(imgstr)
                     image = Image.open(BytesIO(img_bytes))
                     #image.show()
